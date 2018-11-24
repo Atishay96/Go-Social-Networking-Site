@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"reflect"
 
 	"github.com/gorilla/mux"
 
@@ -29,8 +28,14 @@ func NewUserRouter(u root.UserService, router *mux.Router, a *authHelper) *mux.R
 func (ur *userRouter) signUpHandler(w http.ResponseWriter, r *http.Request) {
 
 	var resp root.ResponseSlice
-
-	user, emptyFields, err := decodeUser(r)
+	checks := []string{
+		"username",
+		"FirstName",
+		"LastName",
+		"Email",
+		"Password",
+	}
+	user, emptyFields, err := decodeUser(r, checks)
 	fmt.Println(emptyFields, "emptyFields")
 	if err != nil {
 		resp.Message = "Error Occured"
@@ -39,7 +44,7 @@ func (ur *userRouter) signUpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//change later
-	if len(emptyFields) == 0 {
+	if len(emptyFields) != 0 {
 		resp.Message = "Bad Request."
 		resp.Data = emptyFields
 		Json(w, http.StatusBadRequest, resp)
@@ -80,7 +85,49 @@ func (ur *userRouter) signUpHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ur *userRouter) mailHandler(w http.ResponseWriter, r *http.Request) {
+	var resp root.ResponseSlice
 
+	user, emptyFields, err := decodeUser(r, []string{"Email"})
+	fmt.Println(emptyFields, "emptyFields")
+	if err != nil {
+		resp.Message = "Error Occured"
+		resp.Err = err
+		Json(w, http.StatusInternalServerError, resp)
+		return
+	}
+	//change later
+	if len(emptyFields) != 0 {
+		resp.Message = "Bad Request."
+		resp.Data = emptyFields
+		Json(w, http.StatusBadRequest, resp)
+		return
+	}
+	check2 := ur.userService.CheckEmail(user.Email)
+	if check2 != false {
+		resp.Message = "Email is not registered"
+		Json(w, http.StatusBadRequest, resp)
+		return
+	}
+	random := helper.GenerateRandomString()
+	link := "http://localhost:1377/user/verify/" + random
+	user.VerificationSecret = random
+	err2 := ur.userService.UpdateUser([]string{"VerificationSecret"}, user.VerificationSecret, user.Email)
+	if err2 != nil {
+		resp.Message = "Account already activated"
+		resp.Err = err2
+		Json(w, http.StatusInternalServerError, resp)
+		return
+	}
+	//sending mail
+	c := make(chan string)
+	body := "Wecome abroad, " + user.FirstName
+	body = body + "\r\n Click on the link below to activate your account "
+	body = body + link
+	go helper.SendMail(c, user.Email, body)
+	resp.Message = "Mail sent"
+	// resp.Data = user
+	Json(w, http.StatusOK, resp)
+	return
 }
 
 func (ur *userRouter) verifyAccountHandler(w http.ResponseWriter, r *http.Request) {
@@ -102,31 +149,20 @@ func (ur *userRouter) verifyAccountHandler(w http.ResponseWriter, r *http.Reques
 	return
 }
 
-func decodeUser(r *http.Request) (root.User, []string, error) {
+func decodeUser(r *http.Request, checks []string) (root.User, []string, error) {
 	var u root.User
 	if r.Body == nil {
 		return u, []string{}, errors.New("no request body")
 	}
 	decoder := json.NewDecoder(r.Body)
-	checks := []string{
-		"Username",
-		"FirstName",
-		"LastName",
-		"Email",
-		"Password",
-	}
 	emptyFields := []string{}
 	for _, check := range checks {
-		r := reflect.ValueOf(u)
-		f := reflect.Indirect(r).FieldByName(check)
-		fmt.Println(f)
-		fieldValue := reflect.Indirect(reflect.ValueOf(u)).FieldByName(check)
-		if (fieldValue.Type().String() == "string" && fieldValue.Len() == 0) || (fieldValue.Type().String() != "string" && fieldValue.IsNil()) {
-			fmt.Println("fieldValue")
-			fmt.Println(reflect.Indirect(reflect.ValueOf(u)).FieldByName(check))
-			fmt.Println(reflect.Indirect(reflect.ValueOf(u)).FieldByName(check))
-			emptyFields = append(emptyFields, check)
-		}
+		fmt.Println(check)
+		// fieldValue := reflect.Indirect(reflect.ValueOf(&u)).FieldByName(string(check))
+		// fmt.Println(reflect.Indirect(reflect.ValueOf(u)))
+		// if (fieldValue.Type().String() == "string" && fieldValue.Len() == 0) || (fieldValue.Type().String() != "string" && fieldValue.IsNil()) {
+		// 	emptyFields = append(emptyFields, check)
+		// }
 	}
 	err := decoder.Decode(&u)
 	return u, emptyFields, err

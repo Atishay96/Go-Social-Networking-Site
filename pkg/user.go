@@ -23,4 +23,5 @@ type UserService interface {
 	CheckUserName(username string) bool
 	CheckEmail(email string) bool
 	HandleSecret(secret string) error
+	UpdateUser(fields []string, VerificationSecret string, email string) error
 }

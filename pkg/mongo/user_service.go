@@ -41,6 +41,7 @@ func (p *UserService) CheckUserName(username string) bool {
 
 func (p *UserService) CheckEmail(email string) bool {
 	model := userModel{}
+	email = strings.ToLower(email)
 	p.collection.Find(bson.M{"email": strings.ToLower(email)}).One(&model)
 	if model.Email != "" {
 		return false
@@ -56,6 +57,31 @@ func (p *UserService) HandleSecret(secret string) error {
 		},
 	}
 	change := bson.M{"$set": bson.M{"verified": true, "verifiedon": time.Now(), "updatedat": time.Now()}}
+	err := p.collection.Update(condition, change)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
+}
+
+func (p *UserService) UpdateUser(fields []string, VerificationSecret string, email string) error {
+	// make it generic
+
+	email = strings.ToLower(email)
+
+	condition := bson.M{
+		"$and": []bson.M{
+			bson.M{"email": email},
+			bson.M{"verified": false},
+		},
+	}
+	change := bson.M{
+		"$set": bson.M{
+			"verificationsecret": VerificationSecret,
+			"updatedat":          time.Now(),
+		},
+	}
 	err := p.collection.Update(condition, change)
 	if err != nil {
 		fmt.Println(err)

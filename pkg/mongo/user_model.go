@@ -44,7 +44,7 @@ func userModelIndex() mgo.Index {
 }
 
 func newUserModel(u *root.User) (*userModel, error) {
-	user := userModel{Username: u.Username, FirstName: u.FirstName, LastName: strings.ToLower(u.LastName), Email: u.Email, VerificationSecret: u.VerificationSecret, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	user := userModel{Username: u.Username, FirstName: u.FirstName, LastName: u.LastName, Email: strings.ToLower(u.Email), VerificationSecret: u.VerificationSecret, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 	err := user.setSaltedPassword(u.Password)
 	return &user, err
 }
