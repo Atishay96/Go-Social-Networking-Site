@@ -1,6 +1,7 @@
 package mongo
 
 import (
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -29,6 +30,7 @@ type userModel struct {
 	VerifiedOn           time.Time
 	Blocked              bool
 	BlockedOn            time.Time
+	VerificationSecret   string
 }
 
 func userModelIndex() mgo.Index {
@@ -42,7 +44,7 @@ func userModelIndex() mgo.Index {
 }
 
 func newUserModel(u *root.User) (*userModel, error) {
-	user := userModel{Username: u.Username, FirstName: u.FirstName, LastName: u.LastName, Email: u.Email}
+	user := userModel{Username: u.Username, FirstName: u.FirstName, LastName: strings.ToLower(u.LastName), Email: u.Email, VerificationSecret: u.VerificationSecret, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 	err := user.setSaltedPassword(u.Password)
 	return &user, err
 }
