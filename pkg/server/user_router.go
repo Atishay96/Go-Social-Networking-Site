@@ -136,7 +136,7 @@ func (ur *userRouter) verifyAccountHandler(w http.ResponseWriter, r *http.Reques
 
 	vars := mux.Vars(r)
 	secret := vars["secret"]
-	err := ur.userService.HandleSecret(secret)
+	user, err := ur.userService.HandleSecret(secret)
 	if err != nil {
 		resp.Message = "Account already activated or Link Expired"
 		resp.Err = err
@@ -144,7 +144,8 @@ func (ur *userRouter) verifyAccountHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	resp.Message = "Successfully Verified"
-	resp.Data = []string{}
+	token := ur.auth.newToken(user)
+	resp.Data = map[string]string{"AuthToken": token}
 	Json(w, http.StatusOK, resp)
 	return
 }

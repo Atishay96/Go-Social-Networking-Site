@@ -16,12 +16,14 @@ type User struct {
 	Verified             bool
 	Blocked              bool
 	VerificationSecret   string
+	UpdatedAt            time.Time
 }
 
 type UserService interface {
 	CreateUser(u *User) error
 	CheckUserName(username string) bool
 	CheckEmail(email string) bool
-	HandleSecret(secret string) error
+	HandleSecret(secret string) (User, error)
 	UpdateUser(fields []string, VerificationSecret string, email string) error
+	GetUserByUsername(username string) (User, error)
 }
