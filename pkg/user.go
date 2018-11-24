@@ -1,10 +1,22 @@
 package root
 
+import "time"
+
 type User struct {
-	Id       string `json:"id"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	ID                   string
+	Username             string
+	Password             string
+	FirstName            string
+	LastName             string
+	Email                string
+	PhoneNumber          string
+	PhoneNumberExtension string
+	DOB                  time.Time
+	AboutMe              string
+	Verified             bool
+	Blocked              bool
 }
 
 type UserService interface {
+	CreateUser(u *User) error
 }
