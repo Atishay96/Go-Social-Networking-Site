@@ -1,20 +1,20 @@
 package mongo
 
 import (
+	"time"
+
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 type postModel struct {
-	ID      bson.ObjectId `bson:"_id,omitempty"`
-	ownerID bson.ObjectId `bson:"ownerId,omitempty"`
-	// location
-	attachments []string
-	text        string
-	createdAt   string
-	updatedAt   string
-	comments    []string //slices of slices
-	likes       []string //slices of slices
+	ID        bson.ObjectId `bson:"_id,omitempty"`
+	OwnerID   bson.ObjectId `bson:"ownerId,omitempty"`
+	Text      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Comments  []string //slices of slices
+	Likes     []string //slices of slices
 }
 
 func postModelIndex() mgo.Index {

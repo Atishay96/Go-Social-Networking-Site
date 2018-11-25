@@ -25,7 +25,8 @@ func (a *App) Initialize() {
 	}
 
 	u := mongo.NewUserService(a.session.Copy(), a.config.Mongo)
-	a.server = server.NewServer(u, a.config)
+	p := mongo.NewPostService(a.session.Copy(), a.config.Mongo)
+	a.server = server.NewServer(u, p, a.config)
 }
 
 func (a *App) Run() {

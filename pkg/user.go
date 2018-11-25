@@ -18,6 +18,7 @@ type User struct {
 	VerificationSecret   string
 	UpdatedAt            time.Time
 	CreatedAt            time.Time
+	LastLoggedIn         time.Time
 }
 
 type UserService interface {
@@ -31,4 +32,6 @@ type UserService interface {
 	CheckStatus(email string) (bool, User)
 	GetUserByParams(params []string) interface{}
 	GetOtherUserByParams(ID string) interface{}
+	CheckToken(params []string) bool
+	UpdateLastLoggedIn(ID string) (User, error)
 }

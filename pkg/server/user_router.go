@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"reflect"
 
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
@@ -185,8 +186,15 @@ func (ur *userRouter) loginHandler(w http.ResponseWriter, r *http.Request) {
 		Json(w, http.StatusBadRequest, resp)
 		return
 	}
+	user, err2 := ur.userService.UpdateLastLoggedIn(userData.ID)
+	if err2 != nil {
+		resp.Message = "Account already activated or Link Expired"
+		resp.Err = err
+		Json(w, http.StatusBadRequest, resp)
+		return
+	}
 	resp.Message = "Successfully LoggedIn"
-	token := ur.auth.newToken(userData)
+	token := ur.auth.newToken(user)
 	resp.Data = map[string]string{"AuthToken": token}
 	Json(w, http.StatusOK, resp)
 	return
@@ -197,14 +205,14 @@ func (ur *userRouter) loggedInUserHandler(w http.ResponseWriter, r *http.Request
 	var resp root.ResponseSlice
 
 	Username := context.Get(r, "Username")
-	ID := context.Get(r, "ID")
-	UpdatedAt := context.Get(r, "UpdatedAt")
+	UserID := context.Get(r, "ID")
+	LastLoggedIn := context.Get(r, "LastLoggedIn")
 
 	var param []string
-	param = append(param, Username.(string), ID.(string), UpdatedAt.(string))
+	param = append(param, Username.(string), UserID.(string), LastLoggedIn.(string))
 	user := ur.userService.GetUserByParams(param)
 	if user == nil {
-		resp.Message = "Data unavailable"
+		resp.Message = "Invalid Token"
 		Json(w, http.StatusBadRequest, resp)
 		return
 	}
@@ -218,11 +226,23 @@ func (ur *userRouter) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	var resp root.ResponseSlice
 
 	vars := mux.Vars(r)
-	UserId := context.Get(r, "ID")
+
+	Username := context.Get(r, "Username")
+	UserID := context.Get(r, "ID")
+	LastLoggedIn := context.Get(r, "LastLoggedIn")
+
 	ID := vars["friendId"]
-	if UserId == ID {
+	if UserID == ID {
 		resp.Message = "Wrong API call"
 		Json(w, http.StatusBadRequest, resp)
+		return
+	}
+	var param []string
+	param = append(param, Username.(string), UserID.(string), LastLoggedIn.(string))
+	check := ur.userService.CheckToken(param)
+	if check == false {
+		resp.Message = "Invalid Token"
+		Json(w, http.StatusUnauthorized, resp)
 		return
 	}
 	user := ur.userService.GetOtherUserByParams(ID)
@@ -247,15 +267,23 @@ func decodeUser(r *http.Request, checks []string) (root.User, []string, error) {
 		return u, []string{}, errors.New("no request body")
 	}
 	decoder := json.NewDecoder(r.Body)
-	emptyFields := []string{}
-	for _, check := range checks {
-		fmt.Println(check)
-		// fieldValue := reflect.Indirect(reflect.ValueOf(&u)).FieldByName(string(check))
-		// fmt.Println(reflect.Indirect(reflect.ValueOf(u)))
-		// if (fieldValue.Type().String() == "string" && fieldValue.Len() == 0) || (fieldValue.Type().String() != "string" && fieldValue.IsNil()) {
-		// 	emptyFields = append(emptyFields, check)
-		// }
-	}
 	err := decoder.Decode(&u)
-	return u, emptyFields, err
+	emptyFields := []string{}
+	if err != nil {
+		return u, []string{}, err
+	}
+	for _, check := range checks {
+		if check == "" {
+			emptyFields = append(emptyFields, check)
+			continue
+		}
+		temp := reflect.Indirect(reflect.ValueOf(&u))
+		fieldValue := temp.FieldByName(string(check))
+		if (fieldValue.Type().String() == "string" && fieldValue.Len() == 0) || (fieldValue.Type().String() != "string" && fieldValue.IsNil()) {
+			fmt.Println("EMPTY->", check)
+
+			emptyFields = append(emptyFields, check)
+		}
+	}
+	return u, emptyFields, nil
 }

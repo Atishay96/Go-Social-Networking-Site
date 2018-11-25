@@ -32,9 +32,9 @@ var (
 
 func (a *authHelper) newToken(user root.User) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"ID":        user.ID,
-		"Username":  user.Username,
-		"UpdatedAt": user.UpdatedAt,
+		"ID":           user.ID,
+		"Username":     user.Username,
+		"LastLoggedIn": user.LastLoggedIn,
 	})
 
 	tokenString, err := token.SignedString([]byte(a.secret))
@@ -66,7 +66,7 @@ func (a *authHelper) validate(next http.HandlerFunc) http.HandlerFunc {
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			context.Set(req, "Username", claims["Username"])
 			context.Set(req, "ID", claims["ID"])
-			context.Set(req, "UpdatedAt", claims["UpdatedAt"])
+			context.Set(req, "LastLoggedIn", claims["LastLoggedIn"])
 			next(res, req)
 		} else {
 			resp.Message = "Invalid token"

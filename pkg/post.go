@@ -1,17 +1,17 @@
 package root
 
-import "gopkg.in/mgo.v2/bson"
+import "time"
 
 type Post struct {
-	ID          bson.ObjectId
-	ownerID     bson.ObjectId
-	attachments []string
-	text        string
-	createdAt   string
-	updatedAt   string
-	comments    []string
-	likes       []string
+	ID        string
+	OwnerID   string
+	Text      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Comments  []string
+	Likes     []string
 }
 
 type PostService interface {
+	Post(p *Post) (Post, error)
 }

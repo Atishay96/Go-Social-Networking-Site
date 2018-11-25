@@ -57,32 +57,32 @@ func (p *UserService) HandleSecret(secret string) (root.User, error) {
 			bson.M{"verified": false},
 		},
 	}
-	change := bson.M{"$set": bson.M{"verified": true, "verifiedon": time.Now(), "updatedat": time.Now()}}
+	change := bson.M{"$set": bson.M{"verified": true, "verifiedon": time.Now(), "updatedat": time.Now(), "lastloggedin": time.Now()}}
 	err := p.collection.Update(condition, change)
 	if err != nil {
 		fmt.Println("err")
 		fmt.Println(err)
 		return root.User{
-			ID:        model.ID.Hex(),
-			Username:  model.Username,
-			Password:  "-",
-			UpdatedAt: model.UpdatedAt}, err
+			ID:           model.ID.Hex(),
+			Username:     model.Username,
+			Password:     "-",
+			LastLoggedIn: model.LastLoggedIn}, err
 	}
 	err1 := p.collection.Find(bson.M{"verificationsecret": secret}).One(&model)
 	if err1 != nil {
 		fmt.Println("err1")
 		fmt.Println(err1)
 		return root.User{
-			ID:        model.ID.Hex(),
-			Username:  model.Username,
-			Password:  "-",
-			UpdatedAt: model.UpdatedAt}, err1
+			ID:           model.ID.Hex(),
+			Username:     model.Username,
+			Password:     "-",
+			LastLoggedIn: model.LastLoggedIn}, err1
 	}
 	return root.User{
-		ID:        model.ID.Hex(),
-		Username:  model.Username,
-		Password:  "-",
-		UpdatedAt: model.UpdatedAt}, nil
+		ID:           model.ID.Hex(),
+		Username:     model.Username,
+		Password:     "-",
+		LastLoggedIn: model.LastLoggedIn}, nil
 }
 
 func (p *UserService) UpdateUser(fields []string, VerificationSecret string, email string) error {
@@ -163,10 +163,10 @@ func (p *UserService) CheckStatus(email string) (bool, root.User) {
 		}
 	}
 	return true, root.User{
-		ID:        model.ID.Hex(),
-		Username:  model.Username,
-		Password:  "-",
-		UpdatedAt: model.UpdatedAt,
+		ID:           model.ID.Hex(),
+		Username:     model.Username,
+		Password:     "-",
+		LastLoggedIn: model.LastLoggedIn,
 	}
 }
 
@@ -176,7 +176,7 @@ func (p *UserService) GetUserByParams(params []string) interface{} {
 	fmt.Println(params[0])
 	fmt.Println(params[1])
 	fmt.Println(params[2])
-	updatedat, err := time.Parse(time.RFC3339, params[2])
+	lastloggedin, err := time.Parse(time.RFC3339, params[2])
 	if err != nil {
 		fmt.Println("Error occured", err)
 		return nil
@@ -190,7 +190,7 @@ func (p *UserService) GetUserByParams(params []string) interface{} {
 				"_id": bson.ObjectIdHex(params[1]),
 			},
 			bson.M{
-				"updatedat": updatedat,
+				"updatedat": lastloggedin,
 			},
 		},
 	}
@@ -238,4 +238,68 @@ func (p *UserService) GetOtherUserByParams(ID string) interface{} {
 		DOB:                  model.DOB,
 		AboutMe:              model.AboutMe,
 	}
+}
+
+func (p *UserService) CheckToken(params []string) bool {
+	model := userModel{}
+	// make it dynamic. Loop it
+	fmt.Println(params[0])
+	fmt.Println(params[1])
+	fmt.Println(params[2])
+	lastloggedin, err := time.Parse(time.RFC3339, params[2])
+	if err != nil {
+		fmt.Println("Error occured", err)
+		return false
+	}
+	condition := bson.M{
+		"$and": []bson.M{
+			bson.M{
+				"username": params[0],
+			},
+			bson.M{
+				"_id": bson.ObjectIdHex(params[1]),
+			},
+			bson.M{
+				"updatedat": lastloggedin,
+			},
+		},
+	}
+	err1 := p.collection.Find(condition).One(&model)
+	if err1 != nil || model.Username == "" {
+		return false
+	}
+	return true
+}
+
+func (p *UserService) UpdateLastLoggedIn(ID string) (root.User, error) {
+	model := userModel{}
+	condition := bson.M{
+		"_id": bson.ObjectIdHex(ID),
+	}
+	change := bson.M{"$set": bson.M{"updatedat": time.Now(), "lastloggedin": time.Now()}}
+	err := p.collection.Update(condition, change)
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+		return root.User{
+			ID:           model.ID.Hex(),
+			Username:     model.Username,
+			Password:     "-",
+			LastLoggedIn: model.LastLoggedIn}, err
+	}
+	err1 := p.collection.Find(condition).One(&model)
+	if err1 != nil {
+		fmt.Println("err1")
+		fmt.Println(err1)
+		return root.User{
+			ID:           model.ID.Hex(),
+			Username:     model.Username,
+			Password:     "-",
+			LastLoggedIn: model.LastLoggedIn}, err1
+	}
+	return root.User{
+		ID:           model.ID.Hex(),
+		Username:     model.Username,
+		Password:     "-",
+		LastLoggedIn: model.LastLoggedIn}, nil
 }

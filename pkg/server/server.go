@@ -16,12 +16,12 @@ type Server struct {
 	config *root.ServerConfig
 }
 
-func NewServer(u root.UserService, config *root.Config) *Server {
+func NewServer(u root.UserService, p root.PostService, config *root.Config) *Server {
 	s := Server{router: mux.NewRouter(), config: config.Server}
 
 	a := authHelper{config.Auth.Secret}
 	NewUserRouter(u, s.getSubrouter("/user"), &a)
-	NewPostRouter(u, s.getSubrouter("/post"), &a)
+	NewPostRouter(u, p, s.getSubrouter("/post"), &a)
 	return &s
 }
 

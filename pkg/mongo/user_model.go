@@ -31,6 +31,7 @@ type userModel struct {
 	Blocked              bool
 	BlockedOn            time.Time
 	VerificationSecret   string
+	LastLoggedIn         time.Time
 }
 
 func userModelIndex() mgo.Index {
@@ -44,7 +45,7 @@ func userModelIndex() mgo.Index {
 }
 
 func newUserModel(u *root.User) (*userModel, error) {
-	user := userModel{Username: u.Username, FirstName: u.FirstName, LastName: u.LastName, Email: strings.ToLower(u.Email), VerificationSecret: u.VerificationSecret, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	user := userModel{Username: u.Username, FirstName: u.FirstName, LastName: u.LastName, Email: strings.ToLower(u.Email), VerificationSecret: u.VerificationSecret, CreatedAt: time.Now(), UpdatedAt: time.Now(), LastLoggedIn: time.Now()}
 	err := user.setSaltedPassword(u.Password)
 	return &user, err
 }
