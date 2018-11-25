@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/context"
 
 	"Go-Social/pkg"
 )
@@ -31,6 +32,7 @@ var (
 
 func (a *authHelper) newToken(user root.User) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"ID":        user.ID,
 		"Username":  user.Username,
 		"UpdatedAt": user.UpdatedAt,
 	})
@@ -41,15 +43,17 @@ func (a *authHelper) newToken(user root.User) string {
 		fmt.Println(err)
 		return ""
 	}
-	fmt.Println(tokenString, "tokenString")
 	return tokenString
 }
 
 func (a *authHelper) validate(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		var resp root.ResponseSlice
+
 		tokenString := req.Header.Get("Authorization")
 		if tokenString == "" {
-			Error(res, http.StatusUnauthorized, "No authorization token")
+			resp.Message = "No authorization token"
+			Json(res, http.StatusUnauthorized, resp)
 			return
 		}
 		token, err1 := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -57,16 +61,17 @@ func (a *authHelper) validate(next http.HandlerFunc) http.HandlerFunc {
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 			}
 
-			return a.secret, nil
+			return []byte(a.secret), nil
 		})
-		if err1 != nil {
-			Error(res, http.StatusUnauthorized, "Invalid Token")
-			return
-		}
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			fmt.Println(claims["foo"], claims["nbf"])
+			context.Set(req, "Username", claims["Username"])
+			context.Set(req, "ID", claims["ID"])
+			context.Set(req, "UpdatedAt", claims["UpdatedAt"])
+			next(res, req)
+		} else {
+			resp.Message = "Invalid token"
+			resp.Err = err1
+			Json(res, http.StatusBadRequest, resp)
 		}
-		Error(res, http.StatusUnauthorized, "Unauthorized")
-		return
 	})
 }

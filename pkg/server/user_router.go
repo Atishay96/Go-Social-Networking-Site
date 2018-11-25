@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 
 	"Go-Social/pkg"
@@ -22,12 +23,16 @@ func NewUserRouter(u root.UserService, router *mux.Router, a *authHelper) *mux.R
 	router.HandleFunc("/signup", userRouter.signUpHandler).Methods("PUT")
 	router.HandleFunc("/resendMail", userRouter.mailHandler).Methods("POST")
 	router.HandleFunc("/verify/{secret}", userRouter.verifyAccountHandler).Methods("GET")
+	router.HandleFunc("/login", userRouter.loginHandler).Methods("POST")
+	router.HandleFunc("/profile", a.validate(userRouter.loggedInUserHandler)).Methods("GET")
+	router.HandleFunc("/profile/{friendId}", a.validate(userRouter.ProfileHandler)).Methods("GET")
 	return router
 }
 
 func (ur *userRouter) signUpHandler(w http.ResponseWriter, r *http.Request) {
 
 	var resp root.ResponseSlice
+
 	checks := []string{
 		"username",
 		"FirstName",
@@ -36,7 +41,7 @@ func (ur *userRouter) signUpHandler(w http.ResponseWriter, r *http.Request) {
 		"Password",
 	}
 	user, emptyFields, err := decodeUser(r, checks)
-	fmt.Println(emptyFields, "emptyFields")
+
 	if err != nil {
 		resp.Message = "Error Occured"
 		resp.Err = err
@@ -88,7 +93,7 @@ func (ur *userRouter) mailHandler(w http.ResponseWriter, r *http.Request) {
 	var resp root.ResponseSlice
 
 	user, emptyFields, err := decodeUser(r, []string{"Email"})
-	fmt.Println(emptyFields, "emptyFields")
+
 	if err != nil {
 		resp.Message = "Error Occured"
 		resp.Err = err
@@ -146,6 +151,87 @@ func (ur *userRouter) verifyAccountHandler(w http.ResponseWriter, r *http.Reques
 	resp.Message = "Successfully Verified"
 	token := ur.auth.newToken(user)
 	resp.Data = map[string]string{"AuthToken": token}
+	Json(w, http.StatusOK, resp)
+	return
+}
+
+func (ur *userRouter) loginHandler(w http.ResponseWriter, r *http.Request) {
+	var resp root.ResponseSlice
+
+	user, emptyFields, err := decodeUser(r, []string{"Email", "Password"})
+	if err != nil {
+		resp.Message = "Error Occured"
+		resp.Err = err
+		Json(w, http.StatusInternalServerError, resp)
+		return
+	}
+	//change later
+	if len(emptyFields) != 0 {
+		resp.Message = "Bad Request."
+		resp.Data = emptyFields
+		Json(w, http.StatusBadRequest, resp)
+		return
+	}
+	check2 := ur.userService.CheckEmail(user.Email)
+	if check2 != false {
+		resp.Message = "Email is not registered"
+		Json(w, http.StatusBadRequest, resp)
+		return
+	}
+	check3, userData := ur.userService.CheckStatus(user.Email)
+	if check3 == false {
+		resp.Message = "Account is not verified or is blocked. Please contact ADMIN!"
+		Json(w, http.StatusBadRequest, resp)
+		return
+	}
+	resp.Message = "Successfully LoggedIn"
+	token := ur.auth.newToken(userData)
+	resp.Data = map[string]string{"AuthToken": token}
+	Json(w, http.StatusOK, resp)
+	return
+}
+
+func (ur *userRouter) loggedInUserHandler(w http.ResponseWriter, r *http.Request) {
+
+	var resp root.ResponseSlice
+
+	Username := context.Get(r, "Username")
+	ID := context.Get(r, "ID")
+	UpdatedAt := context.Get(r, "UpdatedAt")
+
+	var param []string
+	param = append(param, Username.(string), ID.(string), UpdatedAt.(string))
+	user := ur.userService.GetUserByParams(param)
+	if user == nil {
+		resp.Message = "Data unavailable"
+		Json(w, http.StatusBadRequest, resp)
+		return
+	}
+	resp.Message = "Operation successful"
+	resp.Data = user
+	Json(w, http.StatusOK, resp)
+	return
+}
+
+func (ur *userRouter) ProfileHandler(w http.ResponseWriter, r *http.Request) {
+	var resp root.ResponseSlice
+
+	vars := mux.Vars(r)
+	UserId := context.Get(r, "ID")
+	ID := vars["friendId"]
+	if UserId == ID {
+		resp.Message = "Wrong API call"
+		Json(w, http.StatusBadRequest, resp)
+		return
+	}
+	user := ur.userService.GetOtherUserByParams(ID)
+	if user == nil {
+		resp.Message = "Data unavailable"
+		Json(w, http.StatusBadRequest, resp)
+		return
+	}
+	resp.Message = "Operation successful"
+	resp.Data = user
 	Json(w, http.StatusOK, resp)
 	return
 }

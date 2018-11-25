@@ -17,6 +17,7 @@ type User struct {
 	Blocked              bool
 	VerificationSecret   string
 	UpdatedAt            time.Time
+	CreatedAt            time.Time
 }
 
 type UserService interface {
@@ -26,4 +27,8 @@ type UserService interface {
 	HandleSecret(secret string) (User, error)
 	UpdateUser(fields []string, VerificationSecret string, email string) error
 	GetUserByUsername(username string) (User, error)
+	GetUserByID(ID string) (User, error)
+	CheckStatus(email string) (bool, User)
+	GetUserByParams(params []string) interface{}
+	GetOtherUserByParams(ID string) interface{}
 }
