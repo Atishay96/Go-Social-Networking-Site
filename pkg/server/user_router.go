@@ -26,6 +26,7 @@ func NewUserRouter(u root.UserService, router *mux.Router, a *authHelper) *mux.R
 	router.HandleFunc("/login", userRouter.loginHandler).Methods("POST")
 	router.HandleFunc("/profile", a.validate(userRouter.loggedInUserHandler)).Methods("GET")
 	router.HandleFunc("/profile/{friendId}", a.validate(userRouter.ProfileHandler)).Methods("GET")
+	router.HandleFunc("/profile/edit", a.validate(userRouter.editProfileHandler)).Methods("PUT")
 	return router
 }
 
@@ -234,6 +235,10 @@ func (ur *userRouter) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	resp.Data = user
 	Json(w, http.StatusOK, resp)
 	return
+}
+
+func (ur *userRouter) editProfileHandler(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func decodeUser(r *http.Request, checks []string) (root.User, []string, error) {

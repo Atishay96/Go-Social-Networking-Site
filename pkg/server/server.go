@@ -21,6 +21,7 @@ func NewServer(u root.UserService, config *root.Config) *Server {
 
 	a := authHelper{config.Auth.Secret}
 	NewUserRouter(u, s.getSubrouter("/user"), &a)
+	NewPostRouter(u, s.getSubrouter("/post"), &a)
 	return &s
 }
 
