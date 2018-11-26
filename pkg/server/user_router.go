@@ -213,7 +213,7 @@ func (ur *userRouter) loggedInUserHandler(w http.ResponseWriter, r *http.Request
 	user := ur.userService.GetUserByParams(param)
 	if user == nil {
 		resp.Message = "Invalid Token"
-		Json(w, http.StatusBadRequest, resp)
+		Json(w, http.StatusUnauthorized, resp)
 		return
 	}
 	resp.Message = "Operation successful"
@@ -230,19 +230,20 @@ func (ur *userRouter) ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	Username := context.Get(r, "Username")
 	UserID := context.Get(r, "ID")
 	LastLoggedIn := context.Get(r, "LastLoggedIn")
-
-	ID := vars["friendId"]
-	if UserID == ID {
-		resp.Message = "Wrong API call"
-		Json(w, http.StatusBadRequest, resp)
-		return
-	}
 	var param []string
+
 	param = append(param, Username.(string), UserID.(string), LastLoggedIn.(string))
 	check := ur.userService.CheckToken(param)
 	if check == false {
 		resp.Message = "Invalid Token"
 		Json(w, http.StatusUnauthorized, resp)
+		return
+	}
+
+	ID := vars["friendId"]
+	if UserID == ID {
+		resp.Message = "Wrong API call"
+		Json(w, http.StatusBadRequest, resp)
 		return
 	}
 	user := ur.userService.GetOtherUserByParams(ID)

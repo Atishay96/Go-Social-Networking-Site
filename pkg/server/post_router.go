@@ -40,20 +40,19 @@ func (pr *postRouter) postHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(emptyFields) != 0 {
-		resp.Message = "Bad Request."
-		resp.Data = emptyFields
-		Json(w, http.StatusBadRequest, resp)
-		return
-	}
 	var param []string
 	param = append(param, Username.(string), UserID.(string), LastLoggedIn.(string))
-	fmt.Println(param)
-	fmt.Println(param)
 	check := pr.userService.CheckToken(param)
 	if check == false {
 		resp.Message = "Invalid Token"
 		Json(w, http.StatusUnauthorized, resp)
+		return
+	}
+
+	if len(emptyFields) != 0 {
+		resp.Message = "Bad Request."
+		resp.Data = emptyFields
+		Json(w, http.StatusBadRequest, resp)
 		return
 	}
 	post.OwnerID = UserID.(string)
@@ -69,6 +68,37 @@ func (pr *postRouter) postHandler(w http.ResponseWriter, r *http.Request) {
 	resp.Data = pi
 	Json(w, http.StatusOK, resp)
 	return
+}
+
+func (pr *postRouter) homepage(w http.ResponseWriter, r *http.Request) {
+	var resp root.ResponseSlice
+	Username := context.Get(r, "Username")
+	UserID := context.Get(r, "ID")
+	LastLoggedIn := context.Get(r, "LastLoggedIn")
+
+	data, emptyFields, err := decodeData(r, []string{"Limit", "Ids"})
+	if err != nil {
+		fmt.Println(err)
+		resp.Message = "Error Occured"
+		resp.Err = err
+		Json(w, http.StatusInternalServerError, resp)
+		return
+	}
+	var param []string
+	param = append(param, Username.(string), UserID.(string), LastLoggedIn.(string))
+	check := pr.userService.CheckToken(param)
+	if check == false {
+		resp.Message = "Invalid Token"
+		Json(w, http.StatusUnauthorized, resp)
+		return
+	}
+	if len(emptyFields) != 0 {
+		resp.Message = "Bad Request."
+		resp.Data = emptyFields
+		Json(w, http.StatusBadRequest, resp)
+		return
+	}
+	fmt.Println(data)
 }
 
 func decodeData(r *http.Request, checks []string) (root.Post, []string, error) {
