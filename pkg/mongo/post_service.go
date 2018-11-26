@@ -22,34 +22,26 @@ func NewPostService(session *mgo.Session, config *root.MongoConfig) *PostService
 
 func (ps *PostService) Post(p *root.Post) (root.Post, error) {
 
-	model := root.Post{
+	model := postModel{
 		Text:      p.Text,
-		OwnerID:   p.OwnerID,
+		OwnerID:   bson.ObjectIdHex(p.OwnerID),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	newModel := postModel{}
 	err := ps.collection.Insert(model)
 	if err != nil {
 		fmt.Println(err, "err")
-		return model, err
-	}
-	condition := bson.M{}
-	err1 := ps.collection.Find(condition).One(&newModel)
-	if err1 != nil {
-		fmt.Println(err1)
 		return root.Post{
-			ID:        newModel.ID.Hex(),
-			Text:      newModel.Text,
-			CreatedAt: newModel.CreatedAt,
-			UpdatedAt: newModel.UpdatedAt,
-		}, err1
+			ID:        model.ID.Hex(),
+			Text:      model.Text,
+			CreatedAt: model.CreatedAt,
+			UpdatedAt: model.UpdatedAt,
+		}, err
 	}
-	// send the correct ID
 	return root.Post{
-		ID:        newModel.ID.Hex(),
-		Text:      newModel.Text,
-		CreatedAt: newModel.CreatedAt,
-		UpdatedAt: newModel.UpdatedAt,
+		ID:        model.ID.Hex(),
+		Text:      model.Text,
+		CreatedAt: model.CreatedAt,
+		UpdatedAt: model.UpdatedAt,
 	}, nil
 }
