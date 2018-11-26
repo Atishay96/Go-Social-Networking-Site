@@ -22,6 +22,7 @@ type postRouter struct {
 func NewPostRouter(u root.UserService, p root.PostService, router *mux.Router, a *authHelper) *mux.Router {
 	postRouter := postRouter{p, a, u}
 	router.HandleFunc("/post", a.validate(postRouter.postHandler)).Methods("PUT")
+	router.HandleFunc("/homepage", a.validate(postRouter.homepageHandler)).Methods("POST")
 	return router
 }
 
@@ -70,13 +71,13 @@ func (pr *postRouter) postHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (pr *postRouter) homepage(w http.ResponseWriter, r *http.Request) {
+func (pr *postRouter) homepageHandler(w http.ResponseWriter, r *http.Request) {
 	var resp root.ResponseSlice
 	Username := context.Get(r, "Username")
 	UserID := context.Get(r, "ID")
 	LastLoggedIn := context.Get(r, "LastLoggedIn")
 
-	data, emptyFields, err := decodeData(r, []string{"Limit", "Ids"})
+	data, emptyFields, err := decodeData(r, []string{"Limit", "IDs"})
 	if err != nil {
 		fmt.Println(err)
 		resp.Message = "Error Occured"
@@ -98,7 +99,10 @@ func (pr *postRouter) homepage(w http.ResponseWriter, r *http.Request) {
 		Json(w, http.StatusBadRequest, resp)
 		return
 	}
-	fmt.Println(data)
+	resp.Message = "Operation successful"
+	resp.Data = data
+	Json(w, http.StatusOK, resp)
+	return
 }
 
 func decodeData(r *http.Request, checks []string) (root.Post, []string, error) {
@@ -119,7 +123,13 @@ func decodeData(r *http.Request, checks []string) (root.Post, []string, error) {
 		}
 		temp := reflect.Indirect(reflect.ValueOf(&p))
 		fieldValue := temp.FieldByName(string(check))
-		if (fieldValue.Type().String() == "string" && fieldValue.Len() == 0) || (fieldValue.Type().String() != "string" && fieldValue.IsNil()) {
+		if fieldValue != temp.FieldByName("") {
+			if (fieldValue.Type().String() == "string" && fieldValue.Len() == 0) || (fieldValue.Type().String() != "string" && fieldValue.IsNil()) {
+				fmt.Println("EMPTY->", check)
+
+				emptyFields = append(emptyFields, check)
+			}
+		} else {
 			fmt.Println("EMPTY->", check)
 
 			emptyFields = append(emptyFields, check)

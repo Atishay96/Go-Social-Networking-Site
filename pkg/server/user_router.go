@@ -280,7 +280,13 @@ func decodeUser(r *http.Request, checks []string) (root.User, []string, error) {
 		}
 		temp := reflect.Indirect(reflect.ValueOf(&u))
 		fieldValue := temp.FieldByName(string(check))
-		if (fieldValue.Type().String() == "string" && fieldValue.Len() == 0) || (fieldValue.Type().String() != "string" && fieldValue.IsNil()) {
+		if fieldValue != temp.FieldByName("") {
+			if (fieldValue.Type().String() == "string" && fieldValue.Len() == 0) || (fieldValue.Type().String() != "string" && fieldValue.IsNil()) {
+				fmt.Println("EMPTY->", check)
+
+				emptyFields = append(emptyFields, check)
+			}
+		} else {
 			fmt.Println("EMPTY->", check)
 
 			emptyFields = append(emptyFields, check)
