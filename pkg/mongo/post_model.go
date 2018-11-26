@@ -3,6 +3,8 @@ package mongo
 import (
 	"time"
 
+	"Go-Social/pkg"
+
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -13,8 +15,8 @@ type postModel struct {
 	Text      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Comments  []string //slices of slices
-	Likes     []string //slices of slices
+	Comments  []root.Comments //slices of slices
+	Likes     []root.Likes    //slices of slices
 }
 
 func postModelIndex() mgo.Index {
