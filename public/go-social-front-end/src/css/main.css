@@ -1,0 +1,165 @@
+header {
+	color: white;
+}
+
+.navigation {
+	background-color: #24292e;
+	position: fixed;
+    z-index: 60;
+    width: 100%;
+	top: 0;
+	margin-bottom: 2px;
+}
+
+.navigation-header {
+	/* position: relative; */
+	float: left;
+	display: block;
+
+}
+
+.navigation-body {
+	display: block;
+	margin-top: 20px;
+    margin-bottom: 10px;
+	padding-left: 20px;
+	position: relative;
+	float: left;
+}
+
+.search {
+	/*padding-top: 4px;*/
+	/*text-align: center;*/
+	padding-left: 20px;
+	/*padding-bottom: 4px;*/
+	/*color: black;*/
+	margin-left: 20px;
+	width: 400px;
+	/*outline-color: #24292e;*/
+}
+
+.navigation-body-right ul li {
+	list-style: none;
+	display: inline-block;
+	padding-left: 20px;
+	float: right;
+	font-size: 20px;
+	padding-top: 11px;
+	cursor: pointer;
+}
+
+#image {
+	width: 30px;
+	height: 30px;
+	border-radius: 20px;
+	margin-top: -3px;
+}
+
+.main-body {
+	color: black;
+	/*margin-top: 550px;*/
+}
+
+.margin-top {
+	margin-top: 21px;
+}
+
+.border {
+	border: 2px solid #ffffef;
+	height: auto;
+	min-width: 40%;
+	box-shadow: 4px 8px 4px gray;
+	margin-top: 30%;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.border ul {
+	list-style: none;
+}
+
+.border ul li a:hover{
+	color: black;
+	font-size: 20px;
+	padding-top: 10px;	
+}
+
+.border ul li a:link {
+	color: black;
+	font-size: 20px;
+	padding-top: 10px;
+}
+
+.border ul li a:visited {
+	color: gray;
+	font-size: 20px;
+	padding-top: 10px;
+	text-decoration: none;
+}
+
+.question {
+	font-weight: bold;
+}
+
+.segment_main {
+	margin-top: 4% !important;
+	line-height: 140%;
+    word-spacing: 1px;
+}
+
+.question {
+	margin-bottom: 2%;
+}
+
+.card {
+	margin-top: 22px;
+}
+
+/* Dropdown */
+
+/* .dropdown {
+    
+} */
+
+.arrow-up {
+	display: none;
+	margin-left: 27%;
+	width: 0; 
+	height: 0; 
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-bottom: 5px solid white;
+}
+
+.dropdown-profile {
+	display: inline-block;
+	position: relative;
+}
+
+.dropdown-content {
+	display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    z-index: 1;
+}
+
+.dropdown-content ul {
+	padding-left: 0px;
+	padding-right: 20%;
+	text-align: center;
+
+}
+
+.dropdown-content ul li {
+	text-align: center;	
+}
+
+
+hr {
+	border-color: black;
+}
+
+/* Dropdown end */

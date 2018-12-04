@@ -42,6 +42,14 @@
   version = "v1.6.2"
 
 [[projects]]
+  digest = "1:ecd9aa82687cf31d1585d4ac61d0ba180e42e8a6182b85bd785fcca8dfeefc1b"
+  name = "github.com/joho/godotenv"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "23d116af351c84513e1946b527c88823e476be13"
+  version = "v1.3.0"
+
+[[projects]]
   branch = "master"
   digest = "1:1ecf2a49df33be51e757d0033d5d51d5f784f35f68e5a38f797b2d3f03357d71"
   name = "golang.org/x/crypto"
@@ -75,6 +83,7 @@
     "github.com/gorilla/context",
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
+    "github.com/joho/godotenv",
     "golang.org/x/crypto/bcrypt",
     "gopkg.in/mgo.v2",
     "gopkg.in/mgo.v2/bson",

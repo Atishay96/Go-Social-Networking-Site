@@ -27,7 +27,7 @@ func NewServer(u root.UserService, p root.PostService, config *root.Config) *Ser
 
 func (s *Server) Start() {
 	log.Println("Listening on port " + s.config.Port)
-	if err := http.ListenAndServe(s.config.Port, handlers.LoggingHandler(os.Stdout, s.router)); err != nil {
+	if err := http.ListenAndServe(":"+s.config.Port, handlers.LoggingHandler(os.Stdout, s.router)); err != nil {
 		log.Fatal("http.ListenAndServe: ", err)
 	}
 }
