@@ -17,6 +17,10 @@ type Likes struct {
 	UserID bson.ObjectId `bson:"UserId,omitempty"`
 }
 
+type PostHelper interface {
+	GetUserByID(ID string) (User, error)
+}
+
 type Post struct {
 	ID        string
 	OwnerID   string
@@ -28,10 +32,11 @@ type Post struct {
 	IDs       []string
 	Limit     int
 	Comment   string
+	Owner     User
 }
 
 type PostService interface {
-	Post(p *Post) (Post, error)
+	Post(p *Post, us PostHelper) (Post, error)
 	GetPosts(limit int, IDs []bson.ObjectId) ([]Post, error)
 	AddComment(postId string, comment Comments) interface{}
 	UpdateLike(postId string, like Likes) interface{}

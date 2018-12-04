@@ -72,6 +72,7 @@
   input-imports = [
     "github.com/dgrijalva/jwt-go",
     "github.com/google/uuid",
+    "github.com/gorilla/context",
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
     "golang.org/x/crypto/bcrypt",

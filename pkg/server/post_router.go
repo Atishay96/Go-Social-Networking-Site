@@ -61,7 +61,7 @@ func (pr *postRouter) postHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	post.OwnerID = UserID.(string)
-	pi, err2 := pr.postService.Post(&post)
+	pi, err2 := pr.postService.Post(&post, pr.userService)
 	if err2 != nil {
 		resp.Message = "Error Occured"
 		resp.Err = err2

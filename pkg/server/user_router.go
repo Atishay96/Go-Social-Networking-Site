@@ -36,7 +36,7 @@ func (ur *userRouter) signUpHandler(w http.ResponseWriter, r *http.Request) {
 	var resp root.ResponseSlice
 
 	checks := []string{
-		"username",
+		"Username",
 		"FirstName",
 		"LastName",
 		"Email",

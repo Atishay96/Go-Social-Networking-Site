@@ -20,8 +20,7 @@ func NewPostService(session *mgo.Session, config *root.MongoConfig) *PostService
 	return &PostService{collection}
 }
 
-func (ps *PostService) Post(p *root.Post) (root.Post, error) {
-
+func (ps *PostService) Post(p *root.Post, us root.PostHelper) (root.Post, error) {
 	model := postModel{
 		ID:        bson.NewObjectId(),
 		Text:      p.Text,
@@ -29,22 +28,24 @@ func (ps *PostService) Post(p *root.Post) (root.Post, error) {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
+	user, err1 := us.GetUserByID(model.OwnerID.Hex())
+	if err1 != nil {
+		fmt.Println("ERR 1")
+		fmt.Println(err1)
+		return root.Post{}, err1
+	}
 	err := ps.collection.Insert(model)
-
 	if err != nil {
 		fmt.Println(err, "err")
-		return root.Post{
-			ID:        model.ID.Hex(),
-			Text:      model.Text,
-			CreatedAt: model.CreatedAt,
-			UpdatedAt: model.UpdatedAt,
-		}, err
+		return root.Post{}, err
 	}
 	return root.Post{
 		ID:        model.ID.Hex(),
+		OwnerID:   model.OwnerID.Hex(),
 		Text:      model.Text,
 		CreatedAt: model.CreatedAt,
 		UpdatedAt: model.UpdatedAt,
+		Owner:     user,
 	}, nil
 }
 

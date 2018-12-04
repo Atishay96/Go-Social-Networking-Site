@@ -121,7 +121,7 @@ func (p *UserService) GetUserByUsername(username string) (root.User, error) {
 
 func (p *UserService) GetUserByID(ID string) (root.User, error) {
 	model := userModel{}
-	err := p.collection.Find(bson.M{"ID": ID}).One(&model)
+	err := p.collection.Find(bson.M{"_id": bson.ObjectIdHex(ID)}).One(&model)
 	return root.User{
 		ID:       model.ID.Hex(),
 		Username: model.Username,
