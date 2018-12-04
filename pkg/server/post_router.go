@@ -108,7 +108,7 @@ func (pr *postRouter) homepageHandler(w http.ResponseWriter, r *http.Request) {
 	for _, v := range data.IDs {
 		IDs = append(IDs, bson.ObjectIdHex(v))
 	}
-	posts, err := pr.postService.GetPosts(data.Limit, IDs)
+	posts, err := pr.postService.GetPosts(data.Limit, IDs, pr.userService)
 	resp.Message = "Operation successful"
 	resp.Data = posts
 	Json(w, http.StatusOK, resp)

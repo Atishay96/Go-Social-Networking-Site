@@ -49,7 +49,7 @@ func (ps *PostService) Post(p *root.Post, us root.PostHelper) (root.Post, error)
 	}, nil
 }
 
-func (ps *PostService) GetPosts(limit int, IDs []bson.ObjectId) ([]root.Post, error) {
+func (ps *PostService) GetPosts(limit int, IDs []bson.ObjectId, us root.PostHelper) ([]root.Post, error) {
 	var results []postModel
 	final := []root.Post{}
 	condition := bson.M{
@@ -68,16 +68,19 @@ func (ps *PostService) GetPosts(limit int, IDs []bson.ObjectId) ([]root.Post, er
 	fmt.Println("results", results)
 	for _, v := range results {
 		// fmt.Println("results", results)
-
-		final = append(final, root.Post{
-			ID:        v.ID.Hex(),
-			OwnerID:   v.OwnerID.Hex(),
-			Text:      v.Text,
-			Comments:  v.Comments,
-			Likes:     v.Likes,
-			CreatedAt: v.CreatedAt,
-			UpdatedAt: v.UpdatedAt,
-		})
+		user, err := us.GetUserByID(v.OwnerID.Hex())
+		if err == nil {
+			final = append(final, root.Post{
+				ID:        v.ID.Hex(),
+				OwnerID:   v.OwnerID.Hex(),
+				Text:      v.Text,
+				Comments:  v.Comments,
+				Likes:     v.Likes,
+				CreatedAt: v.CreatedAt,
+				UpdatedAt: v.UpdatedAt,
+				Owner:     user,
+			})
+		}
 	}
 	return final, nil
 }

@@ -37,7 +37,7 @@ type Post struct {
 
 type PostService interface {
 	Post(p *Post, us PostHelper) (Post, error)
-	GetPosts(limit int, IDs []bson.ObjectId) ([]Post, error)
+	GetPosts(limit int, IDs []bson.ObjectId, us PostHelper) ([]Post, error)
 	AddComment(postId string, comment Comments) interface{}
 	UpdateLike(postId string, like Likes) interface{}
 }
