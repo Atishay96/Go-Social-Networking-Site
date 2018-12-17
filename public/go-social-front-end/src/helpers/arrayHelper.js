@@ -4,7 +4,7 @@
  * @param {Object} object
  * @return {Array}
  */
-export function notEmpty(object) {
+export const notEmpty = (object) => {
     var empty = []
 
     Object.keys(object).map(v => {
