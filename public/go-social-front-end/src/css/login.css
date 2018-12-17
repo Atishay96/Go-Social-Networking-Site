@@ -1,0 +1,30 @@
+.login_form{
+    width: 30% !important;
+    text-align: center;
+    height: 30%;
+    position: relative;
+    top: 30vh;
+    /* border: 1px solid black;
+    border-spacing: 5px 0px;
+    border-radius: 10px; */
+}
+
+.signup_form{
+    width: 30% !important;
+    text-align: center;
+    height: 30%;
+    position: relative;
+    top: 15vh;
+}
+
+.righttwo{
+    margin-left: 2%;
+}
+
+.sign_up_heading{
+    left: 0;
+    right: 0;
+    margin-bottom: 10vh;
+    font-weight: bold;
+    font-size: 30px;
+}
