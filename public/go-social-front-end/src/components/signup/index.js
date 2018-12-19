@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux'
+
 import "../../css/login.css";
 import { notEmpty } from '../../helpers/arrayHelper'
+import { signUp } from '../../redux/actions/login';
 
 class signUpPage extends Component {
-    constructor() {
+    constructor(props) {
         super();
         this.state = {
             user: {
@@ -17,15 +20,23 @@ class signUpPage extends Component {
         }
     }
 
+    componentWillReceiveProps(props) {
+        console.log('componentWillRecieveProps');
+        console.log(props.status);
+        console.log('inProcess is set to false again');
+    }
+
+
     onSubmit(e) {
         e.preventDefault()
         const { user } = this.state
+        const { dispatch } = this.props;
         let missingParams = notEmpty(user)
-        if (missingParams.length != 0) {
+        if (missingParams.length !== 0) {
             console.log(missingParams)
             return alert("Parameters missing")
         }
-        alert("READY TO SUBMIT")
+        dispatch(signUp(user))
     }
 
     fieldChange(e, param) {
@@ -77,7 +88,7 @@ class signUpPage extends Component {
                             </div>
                         </div>
                         <div className="signup col-sm-offset-2 col-sm-4">
-                            <label><a href="#">Looking for Login?</a></label>
+                            <label><a href="/login">Looking for Login?</a></label>
                         </div>
                     </div>
                     <div className="form-group">
@@ -90,4 +101,12 @@ class signUpPage extends Component {
         )
     }
 }
-export default signUpPage
+
+//not clear about this
+const mapStateToProps = function (state) {
+    console.log('sending to componentWillRecieveProps');
+    // console.log( state.login.signIn );
+    return { status: state.login.signIn }
+}
+
+export default connect(mapStateToProps)(signUpPage)

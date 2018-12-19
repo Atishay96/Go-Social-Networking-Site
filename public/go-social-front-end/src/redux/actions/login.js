@@ -1,4 +1,6 @@
-import { setItem } from '../helpers/localStorage';
+import { setItem, removeItem } from '../helpers/storage';
+import { browserHistory } from 'react-router';
+import axios from 'axios'
 
 function loginSuccess(response) {
     // setToken( "token", response.token );
@@ -8,31 +10,58 @@ function loginSuccess(response) {
 function loginFailure(error) {
     return { error: error || 'Login failed', type: 'LOGIN_FAILED', message: error.message }
 }
-export const login = ( inputs ) => {
+
+export const login = (inputs) => {
+    console.log("INSIDE LOGIN REDUX")
+    console.log(inputs)
     // not integrated with backend later integrate with axios
     return dispatch => {
-        if(inputs.email === 'admin@pokedex.com' && inputs.password === '123456'){
+        if (inputs.email === 'admin@pokedex.com' && inputs.password === '123456') {
             console.log('correct creds');
             // static response
-            let response = { message:"Successfully logged in", data: { authToken: '' } };
+            let response = { message: "Successfully logged in", data: { authToken: '' } };
             setItem('authToken', 'asdasdasd');
-            return dispatch( loginSuccess(response) );
+            return dispatch(loginSuccess(response));
         }
-        else{
+        else {
             console.log('wrong creds');
-            let error = {message:'Wrong Credentials'};
-            return dispatch( loginFailure(error) );
+            let error = { message: 'Wrong Credentials' };
+            return dispatch(loginFailure(error));
         }
     }
 }
 
-// export const addTodo = text => ({
-//     type: 'ADD_TODO',
-//     id: nextTodoId++,
-//     text
-//   })
+export const signUp = (inputs) => {
+    // not integrated with backend later integrate with axios
+    return dispatch => {
+        axios.post('http://localhost:5000/user/signup', {
+            ...inputs
+        }).then(function (resp) {
+            console.log(resp)
+            if (resp.status === 200) {
+                setItem('authToken', resp.data.authToken);
+                browserHistory.push('/')
+                return dispatch(loginSuccess(resp.data));
+            } else {
+                return dispatch(loginFailure(resp.data.message))
+            }
+        }).catch(function (err) {
+            if (!err.response) {
+                return dispatch(loginFailure(err.response))
+            }
+            if (err.response.status === 401 || err.response.status === 403) {
+                removeItem('authToken')
+                return browserHistory.push('/login')
+            }
+
+            else
+                return dispatch(loginFailure(err.message))
+        })
+    }
+}
+
 
 export const VisibilityFilters = {
     LOGIN_SUCCESS: 'LOGIN_SUCCESS',
-    LOGIN_FAILED: 'LOGIN_FAILED' 
+    LOGIN_FAILED: 'LOGIN_FAILED'
 }

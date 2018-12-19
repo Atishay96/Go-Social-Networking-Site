@@ -30,7 +30,7 @@ class loginPage extends Component {
                             </div>
                         </div>
                         <div className="signup col-sm-offset-2 col-sm-4">
-                            <label><a href="#">Signup Instead?</a></label>
+                            <label><a href="/signup">Signup Instead?</a></label>
                         </div>
                     </div>
                     <div className="form-group">

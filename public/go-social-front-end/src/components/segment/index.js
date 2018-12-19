@@ -2,9 +2,6 @@ import React, { Component } from 'react'
 import { Segment } from 'semantic-ui-react'
 
 class SegmentReact extends Component{
-  constructor() {
-    super();
-  }
   render() {
     return (
     <div>
