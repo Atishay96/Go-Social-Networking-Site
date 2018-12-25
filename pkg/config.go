@@ -1,5 +1,7 @@
 package root
 
+import "net/http"
+
 type MongoConfig struct {
 	Ip     string `json:"ip"`
 	DbName string `json:"dbName"`
@@ -17,4 +19,5 @@ type Config struct {
 	Mongo  *MongoConfig  `json:"mongo"`
 	Server *ServerConfig `json:"server"`
 	Auth   *AuthConfig   `json:"auth"`
+	Cors   http.Handler
 }

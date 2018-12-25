@@ -8,7 +8,7 @@ function loginSuccess(response) {
 }
 
 function loginFailure(error) {
-    return { error: error || 'Login failed', type: 'LOGIN_FAILED', message: error.message }
+    return { error: error || 'Login failed', type: 'LOGIN_FAILED', message: error ? error.message : 'login failed' }
 }
 
 export const login = (inputs) => {
@@ -34,8 +34,8 @@ export const login = (inputs) => {
 export const signUp = (inputs) => {
     // not integrated with backend later integrate with axios
     return dispatch => {
-        axios.post('http://localhost:5000/user/signup', {
-            ...inputs
+        axios.post('http://localhost:1337/user/signup', {
+            inputs
         }).then(function (resp) {
             console.log(resp)
             if (resp.status === 200) {
@@ -54,8 +54,10 @@ export const signUp = (inputs) => {
                 return browserHistory.push('/login')
             }
 
-            else
+            else{
+                console.log(err)
                 return dispatch(loginFailure(err.message))
+            }
         })
     }
 }

@@ -41,7 +41,7 @@ class signUpPage extends Component {
 
     fieldChange(e, param) {
         const { user } = this.state
-        console.log(user)
+        // console.log(user)
         user[param] = e.target.value
         this.setState(user)
     }
@@ -105,7 +105,7 @@ class signUpPage extends Component {
 //not clear about this
 const mapStateToProps = function (state) {
     console.log('sending to componentWillRecieveProps');
-    // console.log( state.login.signIn );
+    console.log( state.login.signIn );
     return { status: state.login.signIn }
 }
 

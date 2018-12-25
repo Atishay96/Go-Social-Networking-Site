@@ -21,7 +21,7 @@ type userRouter struct {
 
 func NewUserRouter(u root.UserService, router *mux.Router, a *authHelper) *mux.Router {
 	userRouter := userRouter{u, a}
-	router.HandleFunc("/signup", userRouter.signUpHandler).Methods("PUT")
+	router.HandleFunc("/signup", userRouter.signUpHandler).Methods("PUT", "OPTIONS")
 	router.HandleFunc("/resendMail", userRouter.mailHandler).Methods("POST")
 	router.HandleFunc("/verify/{secret}", userRouter.verifyAccountHandler).Methods("GET")
 	router.HandleFunc("/login", userRouter.loginHandler).Methods("POST")
@@ -32,6 +32,10 @@ func NewUserRouter(u root.UserService, router *mux.Router, a *authHelper) *mux.R
 }
 
 func (ur *userRouter) signUpHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	fmt.Println("came here")
 
 	var resp root.ResponseSlice
 
@@ -45,6 +49,7 @@ func (ur *userRouter) signUpHandler(w http.ResponseWriter, r *http.Request) {
 	user, emptyFields, err := decodeUser(r, checks)
 
 	if err != nil {
+		fmt.Println(err)
 		resp.Message = "Error Occured"
 		resp.Err = err
 		Json(w, http.StatusInternalServerError, resp)
@@ -74,6 +79,7 @@ func (ur *userRouter) signUpHandler(w http.ResponseWriter, r *http.Request) {
 	user.VerificationSecret = random
 	err2 := ur.userService.CreateUser(&user)
 	if err2 != nil {
+		fmt.Println(err2)
 		resp.Message = "Error Occured"
 		resp.Err = err2
 		Json(w, http.StatusInternalServerError, resp)

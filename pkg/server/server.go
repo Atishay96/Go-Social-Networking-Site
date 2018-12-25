@@ -3,11 +3,11 @@ package server
 import (
 	"log"
 	"net/http"
-	"os"
+
+	"github.com/gorilla/handlers"
 
 	"Go-Social/pkg"
 
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -27,7 +27,11 @@ func NewServer(u root.UserService, p root.PostService, config *root.Config) *Ser
 
 func (s *Server) Start() {
 	log.Println("Listening on port " + s.config.Port)
-	if err := http.ListenAndServe(":"+s.config.Port, handlers.LoggingHandler(os.Stdout, s.router)); err != nil {
+	headers := handlers.AllowedHeaders([]string{"*"})
+	methods := handlers.AllowedMethods([]string{"*"})
+	origins := handlers.AllowedOrigins([]string{"*"})
+	// handlers := simpleChain(handlers.LoggingHandler(os.Stdout, s.router), handlers.CORS(handlers.AllowedHeaders([]string{"Accept", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "X-Requested-With", "Content-Type", "Authorization"}), handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"}), handlers.AllowedOrigins([]string{"*"}))(s.router))
+	if err := http.ListenAndServe(":"+s.config.Port, handlers.CORS(headers, methods, origins)(s.router)); err != nil {
 		log.Fatal("http.ListenAndServe: ", err)
 	}
 }
