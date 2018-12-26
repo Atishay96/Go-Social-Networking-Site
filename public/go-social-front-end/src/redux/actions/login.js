@@ -8,7 +8,16 @@ function loginSuccess(response) {
 }
 
 function loginFailure(error) {
-    return { error: error || 'Login failed', type: 'LOGIN_FAILED', message: error ? error.message : "Login Falied" }
+    return { error: error || 'Login failed', type: 'LOGIN_FAILED', message: error ? error.message : "Login Failed" }
+}
+
+function signupSuccess(response) {
+    return { type: 'SIGNUP_SUCCESS', message: response.message }
+}
+
+function signupFailure(error) {
+    console.log("Sign up failure")
+    return { error: error || 'Signup failed', type: 'SIGNUP_FAILED', message: error ? error.message : "Signup Failed" }
 }
 
 export const login = (inputs) => {
@@ -16,18 +25,7 @@ export const login = (inputs) => {
     console.log(inputs)
     // not integrated with backend later integrate with axios
     return dispatch => {
-        if (inputs.email === 'admin@pokedex.com' && inputs.password === '123456') {
-            console.log('correct creds');
-            // static response
-            let response = { message: "Successfully logged in", data: { authToken: '' } };
-            setItem('authToken', 'asdasdasd');
-            return dispatch(loginSuccess(response));
-        }
-        else {
-            console.log('wrong creds');
-            let error = { message: 'Wrong Credentials' };
-            return dispatch(loginFailure(error));
-        }
+        
     }
 }
 
@@ -39,23 +37,20 @@ export const signUp = (inputs) => {
         }).then(function (resp) {
             console.log(resp)
             if (resp.status === 200) {
-                setItem('authToken', resp.data.authToken);
-                browserHistory.push('/')
-                return dispatch(loginSuccess(resp.data));
+                // setItem('authToken', resp.data.authToken);
+                browserHistory.push('/verify')
+                return dispatch(signupSuccess(resp.data));
             } else {
-                return dispatch(loginFailure(resp.data.message))
+                return dispatch(signupFailure(resp.data))
             }
         }).catch(function (err) {
+            console.log(err.response)
             if (!err.response) {
-                return dispatch(loginFailure(err.response))
+                return dispatch(signupFailure(err))
+            } else {
+                err.message = err.response.data.message
+                return dispatch(signupFailure(err))
             }
-            if (err.response.status === 401 || err.response.status === 403) {
-                removeItem('authToken')
-                return browserHistory.push('/login')
-            }
-
-            else
-                return dispatch(loginFailure(err.message))
         })
     }
 }
@@ -63,5 +58,7 @@ export const signUp = (inputs) => {
 
 export const VisibilityFilters = {
     LOGIN_SUCCESS: 'LOGIN_SUCCESS',
-    LOGIN_FAILED: 'LOGIN_FAILED'
+    LOGIN_FAILED: 'LOGIN_FAILED',
+    SIGNUP_SUCCESS: 'SIGNUP_SUCCESS',
+    SIGNUP_FAILED: 'SIGNUP_FAILED'
 }

@@ -163,3 +163,8 @@ hr {
 }
 
 /* Dropdown end */
+
+
+.span_error {
+	color: red;
+}
