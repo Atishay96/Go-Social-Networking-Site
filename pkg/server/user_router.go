@@ -188,11 +188,20 @@ func (ur *userRouter) loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err2 := ur.userService.UpdateLastLoggedIn(userData.ID)
 	if err2 != nil {
-		resp.Message = "Account already activated or Link Expired"
+		resp.Message = "error occured"
 		resp.Err = err
 		Json(w, http.StatusBadRequest, resp)
 		return
 	}
+
+	// err3 := ur.userService.ComparePassword(user.Email, user.Password)
+	// if err3 != nil {
+	// 	resp.Message = "Invalid Password"
+	// 	fmt.Println(err3)
+	// 	resp.Err = nil
+	// 	Json(w, http.StatusForbidden, resp)
+	// 	return
+	// }
 	resp.Message = "Successfully LoggedIn"
 	token := ur.auth.newToken(user)
 	resp.Data = map[string]string{"AuthToken": token}

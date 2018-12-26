@@ -71,7 +71,7 @@ func (a *authHelper) validate(next http.HandlerFunc) http.HandlerFunc {
 		} else {
 			resp.Message = "Invalid token"
 			resp.Err = err1
-			Json(res, http.StatusBadRequest, resp)
+			Json(res, http.StatusUnauthorized, resp)
 		}
 	})
 }

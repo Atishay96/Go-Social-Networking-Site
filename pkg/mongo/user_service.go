@@ -303,3 +303,18 @@ func (p *UserService) UpdateLastLoggedIn(ID string) (root.User, error) {
 		Password:     "-",
 		LastLoggedIn: model.LastLoggedIn}, nil
 }
+
+func (p *UserService) ComparePassword(Email string, Password string) error {
+	model := userModel{}
+
+	err := p.collection.Find(bson.M{"email": Email}).One(&model)
+
+	if err != nil {
+		return err
+	}
+	err1 := model.comparePassword(Password)
+	if err1 != nil {
+		return err1
+	}
+	return nil
+}

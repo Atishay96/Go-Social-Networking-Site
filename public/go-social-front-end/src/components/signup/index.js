@@ -39,7 +39,7 @@ class signUpPage extends Component {
 
     componentWillReceiveProps(props) {
         console.log(props)
-        this.setState({signUpError: props.signUp.error})
+        this.setState({ signUpError: props.signUp.error })
     }
 
     onSubmit(e) {
@@ -76,8 +76,8 @@ class signUpPage extends Component {
             console.log(missingParams)
             return
         }
-        if(user.password.trim().length <= 5){
-            this.setState({signUpError : 'Password should be greater than 5'})
+        if (user.password.trim().length <= 5) {
+            this.setState({ signUpError: 'Password should be greater than 5' })
             return
         }
         dispatch(signUp(user))
@@ -168,8 +168,7 @@ class signUpPage extends Component {
     }
 }
 
-//not clear about this
-const mapStateToProps = function (state) {
+const mapStateToProps = (state) => {
     console.log('sending to componentWillReceiveProps');
     return { signUp: state.login.signUp }
 }

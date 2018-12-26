@@ -1,4 +1,4 @@
-import { setItem, removeItem } from '../helpers/storage';
+import { setItem } from '../helpers/storage';
 import { browserHistory } from 'react-router';
 import axios from 'axios'
 
@@ -21,29 +21,50 @@ function signupFailure(error) {
 }
 
 export const login = (inputs) => {
-    console.log("INSIDE LOGIN REDUX")
-    console.log(inputs)
-    // not integrated with backend later integrate with axios
     return dispatch => {
-        
+        axios.post('http://localhost:1337/user/login', {
+            ...inputs
+        }).then((resp) => {
+            console.log(resp)
+            if (resp.status === 200) {
+                setItem('AuthToken', resp.data.data.AuthToken);
+                let expiresOn = new Date()
+                expiresOn.setHours(expiresOn.getHours() + 3)
+                if (inputs.rememberMe) {
+                    expiresOn.setHours(expiresOn.getDate() + 30)
+                }
+                setItem('expiresOn', expiresOn)
+                browserHistory.push('/')
+                return dispatch(loginSuccess(resp.data.data));
+            } else {
+                return dispatch(loginFailure(resp.data.data))
+            }
+        }).catch((err) => {
+            console.log(err.response)
+            if (!err.response) {
+                return dispatch(loginFailure(err))
+            } else {
+                err.message = err.response.data.message
+                return dispatch(loginFailure(err))
+            }
+        })
     }
 }
 
 export const signUp = (inputs) => {
-    // not integrated with backend later integrate with axios
     return dispatch => {
         axios.put('http://localhost:1337/user/signup', {
             ...inputs
-        }).then(function (resp) {
+        }).then((resp) => {
             console.log(resp)
             if (resp.status === 200) {
                 // setItem('authToken', resp.data.authToken);
                 browserHistory.push('/verify')
-                return dispatch(signupSuccess(resp.data));
+                return dispatch(signupSuccess(resp.data.data));
             } else {
-                return dispatch(signupFailure(resp.data))
+                return dispatch(signupFailure(resp.data.data))
             }
-        }).catch(function (err) {
+        }).catch((err) => {
             console.log(err.response)
             if (!err.response) {
                 return dispatch(signupFailure(err))
