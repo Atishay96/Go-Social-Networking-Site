@@ -34,5 +34,5 @@ type UserService interface {
 	GetOtherUserByParams(ID string) interface{}
 	CheckToken(params []string) bool
 	UpdateLastLoggedIn(ID string) (User, error)
-	ComparePassword(Email string, Password string) error
+	ComparePassword(ID string, Password string) error
 }

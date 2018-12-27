@@ -133,6 +133,9 @@ func (p *UserService) CheckStatus(email string) (bool, root.User) {
 	condition := bson.M{
 		"$and": []bson.M{
 			bson.M{
+				"email": email,
+			},
+			bson.M{
 				"verified": true,
 			},
 			bson.M{
@@ -304,11 +307,10 @@ func (p *UserService) UpdateLastLoggedIn(ID string) (root.User, error) {
 		LastLoggedIn: model.LastLoggedIn}, nil
 }
 
-func (p *UserService) ComparePassword(Email string, Password string) error {
+func (p *UserService) ComparePassword(ID string, Password string) error {
 	model := userModel{}
 
-	err := p.collection.Find(bson.M{"email": Email}).One(&model)
-
+	err := p.collection.Find(bson.M{"_id": bson.ObjectIdHex(ID)}).One(&model)
 	if err != nil {
 		return err
 	}

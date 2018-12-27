@@ -186,6 +186,13 @@ func (ur *userRouter) loginHandler(w http.ResponseWriter, r *http.Request) {
 		Json(w, http.StatusBadRequest, resp)
 		return
 	}
+	err3 := ur.userService.ComparePassword(userData.ID, user.Password)
+	if err3 != nil {
+		resp.Message = "Invalid Password"
+		resp.Err = nil
+		Json(w, http.StatusForbidden, resp)
+		return
+	}
 	user, err2 := ur.userService.UpdateLastLoggedIn(userData.ID)
 	if err2 != nil {
 		resp.Message = "error occured"
@@ -194,14 +201,6 @@ func (ur *userRouter) loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// err3 := ur.userService.ComparePassword(user.Email, user.Password)
-	// if err3 != nil {
-	// 	resp.Message = "Invalid Password"
-	// 	fmt.Println(err3)
-	// 	resp.Err = nil
-	// 	Json(w, http.StatusForbidden, resp)
-	// 	return
-	// }
 	resp.Message = "Successfully LoggedIn"
 	token := ur.auth.newToken(user)
 	resp.Data = map[string]string{"AuthToken": token}
