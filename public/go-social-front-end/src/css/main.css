@@ -168,3 +168,15 @@ hr {
 .span_error {
 	color: red;
 }
+
+.segment_main {
+	position: relative;
+}
+
+.right {
+	float: right;
+}
+
+.homepage-post {
+	margin-top: 5px
+}

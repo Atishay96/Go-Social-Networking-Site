@@ -116,7 +116,7 @@ func (ur *userRouter) mailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	random := helper.GenerateRandomString()
-	link := "http://localhost:1377/user/verify/" + random
+	link := "http://localhost:1337/user/verify/" + random
 	user.VerificationSecret = random
 	err2 := ur.userService.UpdateUser([]string{"VerificationSecret"}, user.VerificationSecret, user.Email)
 	if err2 != nil {
