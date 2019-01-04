@@ -39,7 +39,7 @@ func (s *Server) Start() {
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"Access-Control-Allow-Origin", "Access-Control-Allow-Headers", "Origin", "X-Requested-With", "Content-Type", "Authorization"},
 		AllowedMethods:   []string{"GET", "HEAD", "POST", "PUT", "OPTIONS"},
-		Debug:            true,
+		// Debug:            true,
 	}).Handler(s.router)
 	if err := http.ListenAndServe(":"+s.config.Port, c); err != nil {
 		log.Fatal("http.ListenAndServe: ", err)
